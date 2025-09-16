@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Impressão</title>
+</head>
+<body>
+    <h2>Enviar Documento para Impressão</h2>
+
+    {% if messages %}
+        {% for msg in messages %}
+            <p style="color: green;">{{ msg }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label>Arquivo:</label><br>
+        <input type="file" name="arquivo"><br><br>
+
+        <label>Quantidade de folhas:</label><br>
+        <input type="number" name="quantidade_folhas"><br><br>
+
+        <label>Frente e verso:</label>
+        <input type="checkbox" name="frente_verso"><br><br>
+
+        <label>Grampear:</label>
+        <input type="checkbox" name="grampear"><br><br>
+
+        <label>Tipo de impressão:</label><br>
+        <select name="tipo_impressao">
+            <option value="pb">Preto e Branco</option>
+            <option value="colorida">Colorida</option>
+        </select><br><br>
+
+        <button type="submit">Enviar</button>
+    </form>
+</body>
+</html>

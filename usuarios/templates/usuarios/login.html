@@ -1,0 +1,300 @@
+{% extends 'impressoes/base.html' %}
+
+{% block title %}Login - Sistema de Impressões{% endblock %}
+
+{% block content %}
+    <!-- Header -->
+    <div class="header-card">
+        <div class="header-gradient">
+            <div class="row align-items-center justify-content-center">
+                <div class="col-md-8 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-sign-in-alt" style="font-size: 3rem;"></i>
+                    </div>
+                    <h1 class="mb-2" style="font-size: 2.5rem; font-weight: 700;">Bem-vindo de Volta</h1>
+                    <p class="mb-0 opacity-90 fs-5">Acesse sua conta no sistema de impressões</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-5">
+                {% for msg in messages %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 12px; border: none; box-shadow: var(--card-shadow);">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{ msg }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Login Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-4 col-md-6">
+            <div class="card" style="border-radius: 20px; box-shadow: var(--card-shadow-hover); border: none; overflow: hidden;">
+                <!-- Form Header -->
+                <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-bottom: none;">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); border-radius: 20px;">
+                            <i class="fas fa-print text-white" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-2">Fazer Login</h3>
+                    <p class="text-muted mb-0">Entre com suas credenciais</p>
+                </div>
+
+                <!-- Form Body -->
+                <div class="card-body p-5">
+                    <form method="POST" id="loginForm">
+                        {% csrf_token %}
+                        
+                        <!-- Username Field -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="fas fa-user text-primary me-2"></i>
+                                Nome de Usuário
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background: #f8fafc; border-color: #e5e7eb;">
+                                    <i class="fas fa-user text-muted"></i>
+                                </span>
+                                <input type="text" name="username" class="form-control" 
+                                       placeholder="Digite seu usuário" required
+                                       style="border-radius: 0 8px 8px 0; border: 2px solid #e5e7eb; font-size: 1rem; padding: 12px 16px;">
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="fas fa-lock text-primary me-2"></i>
+                                Senha
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background: #f8fafc; border-color: #e5e7eb;">
+                                    <i class="fas fa-lock text-muted"></i>
+                                </span>
+                                <input type="password" name="password" id="passwordInput" class="form-control" 
+                                       placeholder="Digite sua senha" required
+                                       style="border-radius: 0 0 0 0; border: 2px solid #e5e7eb; font-size: 1rem; padding: 12px 16px;">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword" 
+                                        style="border-color: #e5e7eb; border-radius: 0 8px 8px 0;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rememberMe">
+                                <label class="form-check-label text-muted" for="rememberMe">
+                                    Lembrar-me neste dispositivo
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-primary btn-lg py-3" id="submitBtn" 
+                                    style="border-radius: 12px; font-weight: 600; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); border: none;">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Entrar
+                            </button>
+                        </div>
+
+                        <!-- Register Link -->
+                        <div class="text-center">
+                            <p class="text-muted mb-0">
+                                Não possui uma conta? 
+                                <a href="/usuarios/registro/" class="text-primary text-decoration-none fw-semibold">
+                                    Registrar-se
+                                </a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-8">
+            <div class="card" style="border-radius: 16px; box-shadow: var(--card-shadow); border: none; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h5 class="fw-semibold text-primary mb-3">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            Sistema Seguro e Confiável
+                        </h5>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3">
+                                <div class="mb-3">
+                                    <i class="fas fa-lock text-success" style="font-size: 2rem;"></i>
+                                </div>
+                                <h6 class="fw-semibold text-dark mb-2">Dados Protegidos</h6>
+                                <p class="text-muted small mb-0">Suas informações são criptografadas e seguras</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3">
+                                <div class="mb-3">
+                                    <i class="fas fa-clock text-primary" style="font-size: 2rem;"></i>
+                                </div>
+                                <h6 class="fw-semibold text-dark mb-2">Acesso 24/7</h6>
+                                <p class="text-muted small mb-0">Sistema disponível a qualquer hora</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3">
+                                <div class="mb-3">
+                                    <i class="fas fa-headset text-warning" style="font-size: 2rem;"></i>
+                                </div>
+                                <h6 class="fw-semibold text-dark mb-2">Suporte Técnico</h6>
+                                <p class="text-muted small mb-0">Ajuda sempre que precisar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Access Info -->
+    <div class="row justify-content-center mt-4">
+        <div class="col-lg-6">
+            <div class="text-center p-4" style="background: rgba(255, 255, 255, 0.8); border-radius: 12px; backdrop-filter: blur(10px);">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fas fa-users text-primary me-2"></i>
+                            <span class="text-muted small">+500 Usuários Ativos</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fas fa-print text-success me-2"></i>
+                            <span class="text-muted small">+10k Impressões</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('passwordInput');
+
+    // Style form inputs with focus effects
+    const inputs = form.querySelectorAll('input[type="text"], input[type="password"]');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.style.borderColor = 'var(--primary-color)';
+            this.style.boxShadow = '0 0 0 0.2rem rgba(37, 99, 235, 0.25)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.style.borderColor = '#e5e7eb';
+            this.style.boxShadow = 'none';
+        });
+    });
+
+    // Password toggle functionality
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            if (type === 'text') {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    }
+
+    // Form submission with loading state
+    form.addEventListener('submit', function(e) {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Entrando...';
+        submitBtn.disabled = true;
+    });
+
+    // Auto-focus on username field
+    const usernameInput = form.querySelector('input[name="username"]');
+    if (usernameInput) {
+        usernameInput.focus();
+    }
+});
+</script>
+
+<style>
+.form-control:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25) !important;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3) !important;
+}
+
+.input-group-text {
+    border-radius: 8px 0 0 8px !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 2rem !important;
+    }
+    
+    .header-gradient {
+        padding: 2rem 1rem !important;
+    }
+    
+    .col-lg-4 {
+        padding: 0 1rem;
+    }
+}
+
+/* Loading animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+</style>
+{% endblock %}

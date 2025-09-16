@@ -1,0 +1,400 @@
+{% extends 'impressoes/base.html' %}
+
+{% block title %}Painel do Administrador - Sistema de Impressões{% endblock %}
+
+{% block content %}
+    <!-- Header -->
+    <div class="header-card">
+        <div class="header-gradient">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-user-shield" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <div>
+                            <h1 class="mb-1" style="font-size: 2rem; font-weight: 700;">Painel do Administrador</h1>
+                            <p class="mb-0 opacity-90">Gerencie todas as impressões do sistema</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <div class="d-flex gap-2 justify-content-md-end">
+                        <button class="btn btn-light">
+                            <i class="fas fa-download me-2"></i>
+                            Relatório
+                        </button>
+                        <button class="btn btn-outline-light">
+                            <i class="fas fa-cog me-2"></i>
+                            Configurações
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="row mb-4">
+            <div class="col-12">
+                {% for msg in messages %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 12px; border: none; box-shadow: var(--card-shadow);">
+                        <i class="fas fa-check-circle me-2"></i>
+                        {{ msg }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stats-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 fw-medium">Total de Impressões</p>
+                        <h3 class="mb-0 fw-bold">{{ impressoes|length|default:0 }}</h3>
+                    </div>
+                    <div class="stats-icon" style="background-color: #dbeafe; color: #2563eb;">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="stats-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 fw-medium">Pendentes</p>
+                        <h3 class="mb-0 fw-bold text-warning">
+                            {% with pendentes=0 %}
+                                {% for imp in impressoes %}
+                                    {% if not imp.entregue %}
+                                        {{ forloop.counter0|add:1 }}
+                                    {% endif %}
+                                {% empty %}
+                                    0
+                                {% endfor %}
+                            {% endwith %}
+                        </h3>
+                    </div>
+                    <div class="stats-icon" style="background-color: #fef3c7; color: #d97706;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="stats-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 fw-medium">Em Produção</p>
+                        <h3 class="mb-0 fw-bold text-info">
+                            {% with producao=0 %}
+                                {% for imp in impressoes %}
+                                    {% if not imp.entregue and imp.grampeado %}
+                                        {{ forloop.counter0|add:1 }}
+                                    {% endif %}
+                                {% empty %}
+                                    0
+                                {% endfor %}
+                            {% endwith %}
+                        </h3>
+                    </div>
+                    <div class="stats-icon" style="background-color: #cffafe; color: #0891b2;">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="stats-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 fw-medium">Entregues</p>
+                        <h3 class="mb-0 fw-bold text-success">
+                            {% with entregues=0 %}
+                                {% for imp in impressoes %}
+                                    {% if imp.entregue %}
+                                        {{ forloop.counter0|add:1 }}
+                                    {% endif %}
+                                {% empty %}
+                                    0
+                                {% endfor %}
+                            {% endwith %}
+                        </h3>
+                    </div>
+                    <div class="stats-icon" style="background-color: #d1fae5; color: #059669;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4" style="border-radius: 12px; box-shadow: var(--card-shadow); border: none;">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="form-control search-input" placeholder="Buscar por usuário ou arquivo..." id="searchInput">
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <select class="form-select" id="statusFilter" style="border-radius: 8px;">
+                        <option value="all">Todos os Status</option>
+                        <option value="pending">Pendentes</option>
+                        <option value="production">Em Produção</option>
+                        <option value="delivered">Entregues</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="typeFilter" style="border-radius: 8px;">
+                        <option value="all">Todos os Tipos</option>
+                        <option value="pb">Preto e Branco</option>
+                        <option value="colorida">Colorida</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Jobs Table -->
+    {% if impressoes %}
+        <div class="card" style="border-radius: 12px; box-shadow: var(--card-shadow); border: none;">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" style="border-radius: 12px; overflow: hidden;">
+                        <thead style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-bottom: 2px solid #e2e8f0;">
+                            <tr>
+                                <th class="px-4 py-3 fw-semibold text-gray-700">
+                                    <i class="fas fa-user me-2"></i>Usuário
+                                </th>
+                                <th class="px-4 py-3 fw-semibold text-gray-700">
+                                    <i class="fas fa-file me-2"></i>Arquivo
+                                </th>
+                                <th class="px-4 py-3 fw-semibold text-gray-700 text-center">
+                                    <i class="fas fa-copy me-2"></i>Folhas
+                                </th>
+                                <th class="px-4 py-3 fw-semibold text-gray-700 text-center">
+                                    <i class="fas fa-arrows-alt-h me-2"></i>F/V
+                                </th>
+                                <th class="px-4 py-3 fw-semibold text-gray-700 text-center">
+                                    <i class="fas fa-paperclip me-2"></i>Grampear
+                                </th>
+                                <th class="px-4 py-3 fw-semibold text-gray-700 text-center">
+                                    <i class="fas fa-palette me-2"></i>Tipo
+                                </th>
+                                <th class="px-4 py-3 fw-semibold text-gray-700 text-center">
+                                    <i class="fas fa-stapler me-2"></i>Grampeado
+                                </th>
+                                <th class="px-4 py-3 fw-semibold text-gray-700 text-center">
+                                    <i class="fas fa-envelope me-2"></i>Envelopado
+                                </th>
+                                <th class="px-4 py-3 fw-semibold text-gray-700 text-center">
+                                    <i class="fas fa-check me-2"></i>Entregue
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in impressoes %}
+                                <tr class="print-row" 
+                                    data-user="{{ item.usuario.username|lower }}" 
+                                    data-file="{{ item.arquivo.name|lower }}"
+                                    data-status="{% if item.entregue %}delivered{% elif item.grampeado %}production{% else %}pending{% endif %}"
+                                    data-type="{{ item.get_tipo_impressao_display|lower }}">
+                                    <td class="px-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                                                <i class="fas fa-user text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">{{ item.usuario.username }}</div>
+                                                <small class="text-muted">{{ item.usuario.email|default:"" }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="file-icon me-3" style="background-color: #fef2f2; color: #dc2626; width: 40px; height: 40px;">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </div>
+                                            <div>
+                                                <a href="{{ item.arquivo.url }}" target="_blank" class="text-decoration-none fw-semibold text-primary hover-underline">
+                                                    {{ item.arquivo.name|truncatechars:30 }}
+                                                </a>
+                                                <div class="small text-muted">Clique para abrir</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="badge bg-light text-dark border">{{ item.quantidade_folhas }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        {% if item.frente_verso %}
+                                            <i class="fas fa-check-circle text-success" title="Sim"></i>
+                                        {% else %}
+                                            <i class="fas fa-times-circle text-muted" title="Não"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        {% if item.grampear %}
+                                            <i class="fas fa-check-circle text-success" title="Sim"></i>
+                                        {% else %}
+                                            <i class="fas fa-times-circle text-muted" title="Não"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        {% if item.get_tipo_impressao_display == "Colorida" %}
+                                            <span class="badge" style="background-color: #fef3c7; color: #d97706; border: 1px solid #fed7aa;">
+                                                <i class="fas fa-palette me-1"></i>Colorida
+                                            </span>
+                                        {% else %}
+                                            <span class="badge" style="background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db;">
+                                                <i class="fas fa-circle me-1"></i>P&B
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <form method="POST" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="id" value="{{ item.id }}">
+                                            <input type="hidden" name="campo" value="grampeado">
+                                            <div class="form-check form-switch d-flex justify-content-center">
+                                                <input class="form-check-input" type="checkbox" name="valor" value="true" 
+                                                       {% if item.grampeado %}checked{% endif %} 
+                                                       onchange="this.form.submit()"
+                                                       style="cursor: pointer;">
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <form method="POST" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="id" value="{{ item.id }}">
+                                            <input type="hidden" name="campo" value="envelopado">
+                                            <div class="form-check form-switch d-flex justify-content-center">
+                                                <input class="form-check-input" type="checkbox" name="valor" value="true" 
+                                                       {% if item.envelopado %}checked{% endif %} 
+                                                       onchange="this.form.submit()"
+                                                       style="cursor: pointer;">
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <form method="POST" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="id" value="{{ item.id }}">
+                                            <input type="hidden" name="campo" value="entregue">
+                                            <div class="form-check form-switch d-flex justify-content-center">
+                                                <input class="form-check-input" type="checkbox" name="valor" value="true" 
+                                                       {% if item.entregue %}checked{% endif %} 
+                                                       onchange="this.form.submit()"
+                                                       style="cursor: pointer;">
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <h4 class="fw-semibold mb-2">Nenhuma impressão no sistema</h4>
+            <p class="mb-0">Ainda não há impressões enviadas para o sistema.</p>
+        </div>
+    {% endif %}
+
+    <!-- No Results Message (Hidden by default) -->
+    <div id="noResults" class="empty-state" style="display: none;">
+        <div class="empty-state-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <h4 class="fw-semibold mb-2">Nenhum resultado encontrado</h4>
+        <p class="mb-0">Tente ajustar os filtros de busca ou verificar a ortografia.</p>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const printRows = document.querySelectorAll('.print-row');
+    const noResults = document.getElementById('noResults');
+    const tableCard = document.querySelector('.table-responsive').closest('.card');
+    
+    function filterRows() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+        const typeValue = typeFilter.value;
+        let visibleCount = 0;
+        
+        printRows.forEach(row => {
+            const user = row.dataset.user;
+            const file = row.dataset.file;
+            const status = row.dataset.status;
+            const type = row.dataset.type;
+            
+            const matchesSearch = user.includes(searchTerm) || file.includes(searchTerm);
+            const matchesStatus = statusValue === 'all' || status === statusValue;
+            const matchesType = typeValue === 'all' || type.includes(typeValue);
+            
+            if (matchesSearch && matchesStatus && matchesType) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Show/hide no results message
+        if (visibleCount === 0 && printRows.length > 0) {
+            tableCard.style.display = 'none';
+            noResults.style.display = 'block';
+        } else {
+            tableCard.style.display = 'block';
+            noResults.style.display = 'none';
+        }
+    }
+    
+    searchInput.addEventListener('input', filterRows);
+    statusFilter.addEventListener('change', filterRows);
+    typeFilter.addEventListener('change', filterRows);
+});
+</script>
+
+<style>
+.hover-underline:hover {
+    text-decoration: underline !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.text-gray-700 {
+    color: #374151 !important;
+}
+</style>
+{% endblock %}

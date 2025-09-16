@@ -1,0 +1,274 @@
+{% extends 'impressoes/base.html' %}
+
+{% block title %}Painel do Professor - Sistema de Impressões{% endblock %}
+
+{% block content %}
+    <!-- Header -->
+    <div class="header-card">
+        <div class="header-gradient">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-print" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <div>
+                            <h1 class="mb-1" style="font-size: 2rem; font-weight: 700;">Painel do Professor</h1>
+                            <p class="mb-0 opacity-90">Gerencie suas impressões de forma eficiente</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <button class="btn btn-light btn-lg">
+                        <i class="fas fa-plus me-2"></i>
+                        Nova Impressão
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="stats-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 fw-medium">Total de Impressões</p>
+                        <h3 class="mb-0 fw-bold">{{ impressoes|length|default:0 }}</h3>
+                    </div>
+                    <div class="stats-icon" style="background-color: #dbeafe; color: #2563eb;">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="stats-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 fw-medium">Pendentes</p>
+                        <h3 class="mb-0 fw-bold text-warning">
+                            {% with pendentes=impressoes|length %}
+                                {% for imp in impressoes %}
+                                    {% if not imp.entregue %}
+                                        {{ forloop.counter0|add:1 }}
+                                    {% endif %}
+                                {% empty %}
+                                    0
+                                {% endfor %}
+                            {% endwith %}
+                        </h3>
+                    </div>
+                    <div class="stats-icon" style="background-color: #fef3c7; color: #d97706;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="stats-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 fw-medium">Entregues</p>
+                        <h3 class="mb-0 fw-bold text-success">
+                            {% with entregues=0 %}
+                                {% for imp in impressoes %}
+                                    {% if imp.entregue %}
+                                        {{ forloop.counter0|add:1 }}
+                                    {% endif %}
+                                {% empty %}
+                                    0
+                                {% endfor %}
+                            {% endwith %}
+                        </h3>
+                    </div>
+                    <div class="stats-icon" style="background-color: #d1fae5; color: #059669;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="card mb-4" style="border-radius: 12px; box-shadow: var(--card-shadow); border: none;">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8 mb-3 mb-md-0">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="form-control search-input" placeholder="Buscar por nome do arquivo..." id="searchInput">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-filter text-muted me-2"></i>
+                        <select class="form-select" id="statusFilter" style="border-radius: 8px;">
+                            <option value="all">Todos os Status</option>
+                            <option value="pending">Pendentes</option>
+                            <option value="delivered">Entregues</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Jobs List -->
+    <div id="printJobsList">
+        {% if impressoes %}
+            {% for imp in impressoes %}
+                <div class="print-job-card p-4 print-job-item" 
+                     data-filename="{{ imp.arquivo.name|lower }}" 
+                     data-status="{% if imp.entregue %}delivered{% else %}pending{% endif %}">
+                    <div class="row align-items-start">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-start">
+                                <div class="file-icon me-3" style="background-color: #fef2f2; color: #dc2626;">
+                                    {% if '.pdf' in imp.arquivo.name|lower %}
+                                        <i class="fas fa-file-pdf"></i>
+                                    {% elif '.doc' in imp.arquivo.name|lower or '.docx' in imp.arquivo.name|lower %}
+                                        <i class="fas fa-file-word" style="color: #2563eb;"></i>
+                                    {% elif '.ppt' in imp.arquivo.name|lower or '.pptx' in imp.arquivo.name|lower %}
+                                        <i class="fas fa-file-powerpoint" style="color: #d97706;"></i>
+                                    {% else %}
+                                        <i class="fas fa-file"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h5 class="mb-0 me-3 fw-semibold">{{ imp.arquivo.name }}</h5>
+                                        {% if imp.prioridade %}
+                                            <span class="priority-badge priority-{{ imp.prioridade }}">
+                                                {{ imp.prioridade|capfirst }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="row text-muted small mb-2">
+                                        <div class="col-sm-6 col-lg-3 mb-1">
+                                            <i class="fas fa-expand-arrows-alt me-1"></i>
+                                            Formato: {{ imp.formato|default:"A4" }}
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3 mb-1">
+                                            <i class="fas fa-file me-1"></i>
+                                            Folhas: {{ imp.quantidade_folhas }}
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3 mb-1">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ imp.data_envio|date:"d/m/Y H:i" }}
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3 mb-1">
+                                            <i class="fas fa-hdd me-1"></i>
+                                            Tamanho: {{ imp.arquivo.size|default:"N/A" }}
+                                        </div>
+                                    </div>
+                                    {% if imp.observacoes %}
+                                        <div class="alert alert-light py-2 px-3 mb-0" style="border-radius: 8px; border-left: 4px solid var(--primary-color);">
+                                            <small>
+                                                <strong>Observações:</strong> {{ imp.observacoes }}
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <div class="d-flex align-items-center justify-content-md-end">
+                                <div class="me-3">
+                                    {% if imp.entregue %}
+                                        <span class="status-badge status-entregue">
+                                            <i class="fas fa-check-circle"></i>
+                                            Entregue
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge status-pendente">
+                                            <i class="fas fa-clock"></i>
+                                            Pendente
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn-action" style="background-color: #f3f4f6; color: #6b7280;" title="Visualizar">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-action" style="background-color: #d1fae5; color: #059669;" title="Download">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h4 class="fw-semibold mb-2">Nenhuma impressão encontrada</h4>
+                <p class="mb-4">Você ainda não enviou nenhuma impressão para o sistema.</p>
+                <button class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>
+                    Enviar Primeira Impressão
+                </button>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- No Results Message (Hidden by default) -->
+    <div id="noResults" class="empty-state" style="display: none;">
+        <div class="empty-state-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <h4 class="fw-semibold mb-2">Nenhum resultado encontrado</h4>
+        <p class="mb-0">Tente ajustar os filtros de busca ou verificar a ortografia.</p>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const printJobsList = document.getElementById('printJobsList');
+    const noResults = document.getElementById('noResults');
+    
+    function filterJobs() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+        const jobItems = document.querySelectorAll('.print-job-item');
+        let visibleCount = 0;
+        
+        jobItems.forEach(item => {
+            const filename = item.dataset.filename;
+            const status = item.dataset.status;
+            
+            const matchesSearch = filename.includes(searchTerm);
+            const matchesStatus = statusValue === 'all' || status === statusValue;
+            
+            if (matchesSearch && matchesStatus) {
+                item.style.display = 'block';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Show/hide no results message
+        if (visibleCount === 0 && jobItems.length > 0) {
+            printJobsList.style.display = 'none';
+            noResults.style.display = 'block';
+        } else {
+            printJobsList.style.display = 'block';
+            noResults.style.display = 'none';
+        }
+    }
+    
+    searchInput.addEventListener('input', filterJobs);
+    statusFilter.addEventListener('change', filterJobs);
+});
+</script>
+{% endblock %}
