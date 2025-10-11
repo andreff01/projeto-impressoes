@@ -53,8 +53,8 @@
                 <div class="card-body p-5">
                     <form method="post" id="registrationForm">
                         {% csrf_token %}
-                        
-                        <!-- Custom Form Fields -->
+
+                        <!-- Campo Nome de Usuário -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold text-dark">
                                 <i class="fas fa-user text-primary me-2"></i>
@@ -79,6 +79,7 @@
                             </div>
                         </div>
 
+                        <!-- Campo Tipo de Usuário -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold text-dark">
                                 <i class="fas fa-user-tag text-primary me-2"></i>
@@ -103,6 +104,70 @@
                             </div>
                         </div>
 
+                        <!-- Campo CPF -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="fas fa-id-card text-primary me-2"></i>
+                                CPF
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background: #f8fafc; border-color: #e5e7eb;">
+                                    <i class="fas fa-id-card text-muted"></i>
+                                </span>
+                                {{ form.cpf }}
+                            </div>
+                            {% if form.cpf.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.cpf.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo Endereço -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                Endereço
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background: #f8fafc; border-color: #e5e7eb;">
+                                    <i class="fas fa-map-marker-alt text-muted"></i>
+                                </span>
+                                {{ form.endereco }}
+                            </div>
+                            {% if form.endereco.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.endereco.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo Telefone -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="fas fa-phone text-primary me-2"></i>
+                                Telefone
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background: #f8fafc; border-color: #e5e7eb;">
+                                    <i class="fas fa-phone text-muted"></i>
+                                </span>
+                                {{ form.telefone }}
+                            </div>
+                            {% if form.telefone.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.telefone.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo Senha -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold text-dark">
                                 <i class="fas fa-lock text-primary me-2"></i>
@@ -130,6 +195,7 @@
                             </div>
                         </div>
 
+                        <!-- Campo Confirmar Senha -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold text-dark">
                                 <i class="fas fa-check-double text-primary me-2"></i>

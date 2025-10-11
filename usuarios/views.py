@@ -25,7 +25,9 @@ def logout_view(request):
 
 
 
+
 from .forms import UsuarioCreationForm
+from django.contrib.auth.decorators import login_required, permission_required
 
 def registro_view(request):
     if request.method == 'POST':
@@ -38,6 +40,8 @@ def registro_view(request):
         form = UsuarioCreationForm()
     return render(request, 'usuarios/registro.html', {'form': form})
 
+@login_required
+@permission_required('usuarios.can_manage_users', raise_exception=True)
 def painel_admin(request):
     return HttpResponse("Bem-vindo, Administrador!")
 
