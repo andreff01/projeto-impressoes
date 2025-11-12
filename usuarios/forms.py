@@ -21,7 +21,6 @@ class UsuarioCreationForm(UserCreationForm):
         user.telefone = self.cleaned_data["telefone"]
         if commit:
             user.save()
-            # Adiciona o usuário ao grupo correto
             if user.tipo == "ADMIN":
                 grupo = Group.objects.get(name="Administrador")
             else:
