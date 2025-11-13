@@ -1,4 +1,6 @@
+
 {% extends 'impressoes/base.html' %}
+{% load tz %}
 
 {% block title %}Painel do Professor - Sistema de Impressões{% endblock %}
 
@@ -19,10 +21,20 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                    <button class="btn btn-light btn-lg">
-                        <i class="fas fa-plus me-2"></i>
-                        Nova Impressão
-                    </button>
+                    <div class="d-flex gap-2 justify-content-md-end">
+                        <a href="/" class="btn btn-light d-flex flex-column align-items-center px-4 py-3" style="border-radius: 12px;">
+                            <i class="fas fa-home mb-1" style="font-size: 1.3rem;"></i>
+                            <span style="font-size: 1rem;">Tela Inicial</span>
+                        </a>
+                        <a href="/usuarios/logout/" class="btn btn-outline-light d-flex flex-column align-items-center px-4 py-3" style="border-radius: 12px;">
+                            <i class="fas fa-sign-out-alt mb-1" style="font-size: 1.3rem;"></i>
+                            <span style="font-size: 1rem;">Sair</span>
+                        </a>
+                        <a href="{% url 'criar_pedido' %}" class="btn btn-light d-flex flex-column align-items-center px-4 py-3" style="border-radius: 12px;">
+                            <i class="fas fa-plus mb-1" style="font-size: 1.3rem;"></i>
+                            <span style="font-size: 1rem;">Nova Impressão</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -93,82 +105,86 @@
         </div>
     </div>
 
-    <!-- Search and Filters -->
+    <!-- Filtros e busca -->
     <div class="card mb-4" style="border-radius: 12px; box-shadow: var(--card-shadow); border: none;">
         <div class="card-body p-4">
-            <div class="row align-items-center">
-                <div class="col-md-8 mb-3 mb-md-0">
-                    <div class="search-container">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" class="form-control search-input" placeholder="Buscar por nome do arquivo..." id="searchInput">
-                    </div>
+            <form method="get" class="row align-items-center g-2">
+                <div class="col-md-6 mb-2 mb-md-0">
+                    <input type="text" name="q" class="form-control" placeholder="Buscar por nome do arquivo..." value="{{ busca }}">
                 </div>
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-filter text-muted me-2"></i>
-                        <select class="form-select" id="statusFilter" style="border-radius: 8px;">
-                            <option value="all">Todos os Status</option>
-                            <option value="pending">Pendentes</option>
-                            <option value="delivered">Entregues</option>
-                        </select>
-                    </div>
+                <div class="col-md-4 mb-2 mb-md-0">
+                    <select name="status" class="form-select">
+                        <option value="">Todos os Status</option>
+                        <option value="pendente" {% if status == 'pendente' %}selected{% endif %}>Pendente</option>
+                        <option value="aprovado" {% if status == 'aprovado' %}selected{% endif %}>Aprovado</option>
+                        <option value="rejeitado" {% if status == 'rejeitado' %}selected{% endif %}>Rejeitado</option>
+                    </select>
                 </div>
-            </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-search me-1"></i> Filtrar
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Print Jobs List -->
     <div id="printJobsList">
-        {% if impressoes %}
-            {% for imp in impressoes %}
-                <div class="print-job-card p-4 print-job-item" 
-                     data-filename="{{ imp.arquivo.name|lower }}" 
-                     data-status="{% if imp.entregue %}delivered{% else %}pending{% endif %}">
+        {% if pedidos %}
+            {% for pedido in pedidos %}
+                <div class="print-job-card p-4 print-job-item"
+                     data-filename="{{ pedido.arquivos.first.arquivo.name|default:''|lower }}"
+                     data-status="{{ pedido.status }}">
                     <div class="row align-items-start">
                         <div class="col-md-8">
                             <div class="d-flex align-items-start">
                                 <div class="file-icon me-3" style="background-color: #fef2f2; color: #dc2626;">
-                                    {% if '.pdf' in imp.arquivo.name|lower %}
-                                        <i class="fas fa-file-pdf"></i>
-                                    {% elif '.doc' in imp.arquivo.name|lower or '.docx' in imp.arquivo.name|lower %}
-                                        <i class="fas fa-file-word" style="color: #2563eb;"></i>
-                                    {% elif '.ppt' in imp.arquivo.name|lower or '.pptx' in imp.arquivo.name|lower %}
-                                        <i class="fas fa-file-powerpoint" style="color: #d97706;"></i>
-                                    {% else %}
-                                        <i class="fas fa-file"></i>
-                                    {% endif %}
+                                    <i class="fas fa-file"></i>
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="d-flex align-items-center mb-2">
-                                        <h5 class="mb-0 me-3 fw-semibold">{{ imp.arquivo.name }}</h5>
-                                        {% if imp.prioridade %}
-                                            <span class="priority-badge priority-{{ imp.prioridade }}">
-                                                {{ imp.prioridade|capfirst }}
-                                            </span>
-                                        {% endif %}
+                                        <h5 class="mb-0 me-3 fw-semibold">Arquivos:</h5>
+                                        <ul class="mb-0" style="list-style: none; padding-left: 0;">
+                                            {% for arquivo in pedido.arquivos.all %}
+                                                <li>
+                                                    <a href="{{ arquivo.arquivo.url }}" target="_blank">{{ arquivo.arquivo.name|cut:"uploads/impressao/" }}</a>
+                                                </li>
+                                            {% empty %}
+                                                <li><em>Nenhum arquivo enviado</em></li>
+                                            {% endfor %}
+                                        </ul>
                                     </div>
                                     <div class="row text-muted small mb-2">
-                                        <div class="col-sm-6 col-lg-3 mb-1">
-                                            <i class="fas fa-expand-arrows-alt me-1"></i>
-                                            Formato: {{ imp.formato|default:"A4" }}
-                                        </div>
-                                        <div class="col-sm-6 col-lg-3 mb-1">
-                                            <i class="fas fa-file me-1"></i>
-                                            Folhas: {{ imp.quantidade_folhas }}
-                                        </div>
-                                        <div class="col-sm-6 col-lg-3 mb-1">
+                                        <div class="col-sm-6 col-lg-4 mb-1">
                                             <i class="fas fa-calendar me-1"></i>
-                                            {{ imp.data_envio|date:"d/m/Y H:i" }}
+                                            {{ pedido.data_criacao|localtime|date:"d/m/Y H:i" }}
                                         </div>
-                                        <div class="col-sm-6 col-lg-3 mb-1">
-                                            <i class="fas fa-hdd me-1"></i>
-                                            Tamanho: {{ imp.arquivo.size|default:"N/A" }}
+                                        <div class="col-sm-6 col-lg-4 mb-1">
+                                            <i class="fas fa-copy me-1"></i>
+                                            <strong>Qtd. Documentos:</strong> {{ pedido.quantidade_documentos }}
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4 mb-1">
+                                            <i class="fas fa-file-alt me-1"></i>
+                                            <strong>Qtd. Folhas:</strong> {{ pedido.quantidade_folhas }}
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4 mb-1">
+                                            <i class="fas fa-exchange-alt me-1"></i>
+                                            <strong>Frente/Verso:</strong> {% if pedido.frente_verso %}Sim{% else %}Não{% endif %}
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4 mb-1">
+                                            <i class="fas fa-paperclip me-1"></i>
+                                            <strong>Grampear:</strong> {% if pedido.grampear %}Sim{% else %}Não{% endif %}
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4 mb-1">
+                                            <i class="fas fa-palette me-1"></i>
+                                            <strong>Tipo:</strong> {{ pedido.get_tipo_impressao_display }}
                                         </div>
                                     </div>
-                                    {% if imp.observacoes %}
+                                    {% if pedido.observacao %}
                                         <div class="alert alert-light py-2 px-3 mb-0" style="border-radius: 8px; border-left: 4px solid var(--primary-color);">
                                             <small>
-                                                <strong>Observações:</strong> {{ imp.observacoes }}
+                                                <strong>Observação:</strong> {{ pedido.observacao }}
                                             </small>
                                         </div>
                                     {% endif %}
@@ -178,10 +194,15 @@
                         <div class="col-md-4 text-md-end mt-3 mt-md-0">
                             <div class="d-flex align-items-center justify-content-md-end">
                                 <div class="me-3">
-                                    {% if imp.entregue %}
+                                    {% if pedido.status == 'aprovado' %}
                                         <span class="status-badge status-entregue">
                                             <i class="fas fa-check-circle"></i>
-                                            Entregue
+                                            Aprovado
+                                        </span>
+                                    {% elif pedido.status == 'rejeitado' %}
+                                        <span class="status-badge status-rejeitado">
+                                            <i class="fas fa-times-circle"></i>
+                                            Rejeitado
                                         </span>
                                     {% else %}
                                         <span class="status-badge status-pendente">
@@ -190,14 +211,17 @@
                                         </span>
                                     {% endif %}
                                 </div>
-                                <div class="d-flex gap-2">
-                                    <button class="btn-action" style="background-color: #f3f4f6; color: #6b7280;" title="Visualizar">
-                                        <i class="fas fa-eye"></i>
+                                <a href="{% url 'detalhar_pedido' pedido.id %}" class="btn btn-outline-primary btn-sm ms-2" title="Detalhar">
+                                    <i class="fas fa-search"></i> Detalhar
+                                </a>
+                                <form method="post" action="" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="acao" value="excluir">
+                                    <input type="hidden" name="pedido_id" value="{{ pedido.id }}">
+                                    <button type="submit" class="btn btn-danger btn-sm ms-2" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir este pedido?');">
+                                        <i class="fas fa-trash"></i>
                                     </button>
-                                    <button class="btn-action" style="background-color: #d1fae5; color: #059669;" title="Download">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -210,13 +234,38 @@
                 </div>
                 <h4 class="fw-semibold mb-2">Nenhuma impressão encontrada</h4>
                 <p class="mb-4">Você ainda não enviou nenhuma impressão para o sistema.</p>
-                <button class="btn btn-primary btn-lg">
+                <a href="{% url 'criar_pedido' %}" class="btn btn-primary btn-lg">
                     <i class="fas fa-plus me-2"></i>
                     Enviar Primeira Impressão
-                </button>
+                </a>
             </div>
         {% endif %}
     </div>
+
+    <!-- Paginação -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if busca %}q={{ busca }}&{% endif %}{% if status %}status={{ status }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
+            </li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?{% if busca %}q={{ busca }}&{% endif %}{% if status %}status={{ status }}&{% endif %}page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if busca %}q={{ busca }}&{% endif %}{% if status %}status={{ status }}&{% endif %}page={{ page_obj.next_page_number }}">Próxima</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 
     <!-- No Results Message (Hidden by default) -->
     <div id="noResults" class="empty-state" style="display: none;">

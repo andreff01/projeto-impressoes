@@ -1,8 +1,52 @@
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from .forms import UsuarioCreationForm
+from django.contrib.auth.decorators import login_required, permission_required
+# Editar usuário
+@login_required
+@permission_required('usuarios.can_manage_users', raise_exception=True)
+def editar_usuario(request, usuario_id):
+    usuario = get_object_or_404(Usuario, id=usuario_id)
+    if request.method == 'POST':
+        form = UsuarioCreationForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Usuário atualizado com sucesso!')
+            return redirect(reverse('painel_usuarios'))
+    else:
+        form = UsuarioCreationForm(instance=usuario)
+    return render(request, 'usuarios/registro.html', {'form': form, 'edicao': True, 'usuario': usuario})
+
+# Excluir usuário
+@login_required
+@permission_required('usuarios.can_manage_users', raise_exception=True)
+def excluir_usuario(request, usuario_id):
+    usuario = get_object_or_404(Usuario, id=usuario_id)
+    if request.method == 'POST':
+        usuario.delete()
+        messages.success(request, 'Usuário excluído com sucesso!')
+        return redirect(reverse('painel_usuarios'))
+    return redirect(reverse('painel_usuarios'))
+
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse
+
 from django.contrib.auth.views import LoginView
+from django.utils.http import urlencode
+from django.conf import settings
+from django.utils.deprecation import MiddlewareMixin
+
+# Middleware para mensagem automática ao redirecionar para login
+class LoginRequiredMessageMiddleware(MiddlewareMixin):
+    def process_request(self, request):
+        if request.path == settings.LOGIN_URL and 'next' in request.GET and not request.user.is_authenticated:
+            from django.contrib import messages
+            if not any(m.message == 'Você precisa estar logado para acessar esta página.' for m in messages.get_messages(request)):
+                messages.warning(request, 'Você precisa estar logado para acessar esta página.')
+        return None
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -40,10 +84,25 @@ def registro_view(request):
         form = UsuarioCreationForm()
     return render(request, 'usuarios/registro.html', {'form': form})
 
+
+from .models import Usuario
+from django.db.models import Q
+
 @login_required
 @permission_required('usuarios.can_manage_users', raise_exception=True)
 def painel_admin(request):
-    return HttpResponse("Bem-vindo, Administrador!")
+    query = request.GET.get('q', '')
+    tipo = request.GET.get('tipo', '')
+    usuarios = Usuario.objects.all()
+    if query:
+        usuarios = usuarios.filter(
+            Q(username__icontains=query) |
+            Q(email__icontains=query) |
+            Q(cpf__icontains=query)
+        )
+    if tipo:
+        usuarios = usuarios.filter(tipo=tipo)
+    return render(request, 'usuarios/painel_admin.html', {'usuarios': usuarios})
 
 from django.contrib import messages
 

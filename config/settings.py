@@ -1,5 +1,8 @@
+import os
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
+MEDIA_URL = '/uploads/'
+MEDIA_ROOT = BASE_DIR / 'uploads'
 SECRET_KEY = 'django-insecure-r(gte_yy)_#sz4+!)81vyr0)ekie*2uirkd38w+zgkg1nbedm*'
 DEBUG = True
 ALLOWED_HOSTS = []
@@ -20,6 +23,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'usuarios.views.LoginRequiredMessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 ROOT_URLCONF = 'config.urls'
@@ -33,12 +37,12 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.tz',
             ],
         },
     },
 ]
 WSGI_APPLICATION = 'config.wsgi.application'
-import os
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -64,7 +68,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 STATIC_URL = 'static/'

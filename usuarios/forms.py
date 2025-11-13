@@ -10,7 +10,15 @@ class UsuarioCreationForm(UserCreationForm):
 
     class Meta:
         model = Usuario
-        fields = ("username", "email", "password1", "password2", "tipo", "cpf", "endereco", "telefone")
+        fields = ("username", "email", "tipo", "cpf", "endereco", "telefone", "password1", "password2")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['password1'].required = False
+            self.fields['password2'].required = False
+            self.fields['password1'].widget.attrs['placeholder'] = 'Deixe em branco para não alterar'
+            self.fields['password2'].widget.attrs['placeholder'] = 'Deixe em branco para não alterar'
 
     def save(self, commit=True):
         from django.contrib.auth.models import Group

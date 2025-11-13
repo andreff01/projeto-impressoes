@@ -1,0 +1,86 @@
+{% extends 'impressoes/base.html' %}
+
+{% block title %}Novo Pedido de Impressão{% endblock %}
+
+{% block content %}
+    <!-- Header -->
+    <div class="header-card mb-4">
+        <div class="header-gradient">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-plus-square" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <div>
+                            <h1 class="mb-1" style="font-size: 2rem; font-weight: 700;">Novo Pedido de Impressão</h1>
+                            <p class="mb-0 opacity-90">Envie um arquivo PDF ou imagem para impressão</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card p-4" style="border-radius: 16px; box-shadow: var(--card-shadow); border: none;">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="mb-4">
+                        {{ form.arquivos.label_tag }}
+                        {{ form.arquivos }}
+                        {% for error in form.arquivos.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.quantidade_documentos.label_tag }}
+                        {{ form.quantidade_documentos }}
+                        {% for error in form.quantidade_documentos.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.quantidade_folhas.label_tag }}
+                        {{ form.quantidade_folhas }}
+                        {% for error in form.quantidade_folhas.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            {{ form.frente_verso }} {{ form.frente_verso.label_tag }}
+                        </div>
+                        <div class="form-check form-switch">
+                            {{ form.grampear }} {{ form.grampear.label_tag }}
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        {{ form.tipo_impressao.label_tag }}
+                        {{ form.tipo_impressao }}
+                        {% for error in form.tipo_impressao.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.observacao.label_tag }}
+                        {{ form.observacao }}
+                        {% for error in form.observacao.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-paper-plane me-2"></i> Enviar Pedido
+                        </button>
+                        <a href="{% url 'painel_professor' %}" class="btn btn-secondary px-4">
+                            <i class="fas fa-times me-2"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

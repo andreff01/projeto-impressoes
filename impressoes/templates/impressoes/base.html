@@ -212,6 +212,10 @@
 <body>
     <div class="main-container">
         <div class="container">
+            {% if request.path != '/impressoes/painel/' and request.path != '/impressoes/painel-admin/' and request.path != '/impressoes/meus-envios/' %}
+                {% include 'impressoes/includes/header.html' %}
+            {% endif %}
+            {% include 'impressoes/includes/messages.html' %}
             {% block content %}
             {% endblock %}
         </div>

@@ -1,21 +1,39 @@
 from django.conf import settings
 from django.db import models
 
+
 class PedidoDeImpressao(models.Model):
     STATUS_CHOICES = [
         ("pendente", "Pendente"),
         ("aprovado", "Aprovado"),
         ("rejeitado", "Rejeitado"),
     ]
+    TIPO_IMPRESSAO_CHOICES = [
+        ('pb', 'Preto e Branco'),
+        ('colorida', 'Colorida'),
+    ]
 
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="pedidos")
-    arquivo = models.FileField(upload_to="uploads/impressao/")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pendente")
     data_criacao = models.DateTimeField(auto_now_add=True)
     observacao = models.TextField(blank=True)
+    quantidade_documentos = models.PositiveIntegerField(default=1)
+    quantidade_folhas = models.PositiveIntegerField(default=1)
+    frente_verso = models.BooleanField(default=False)
+    grampear = models.BooleanField(default=False)
+    tipo_impressao = models.CharField(max_length=20, choices=TIPO_IMPRESSAO_CHOICES, default='pb')
 
     def __str__(self):
-        return f"{self.usuario.username} - {self.arquivo.name} ({self.status})"
+        return f"{self.usuario.username} - Pedido {self.id} ({self.status})"
+
+
+
+class ArquivoPedido(models.Model):
+    pedido = models.ForeignKey(PedidoDeImpressao, on_delete=models.CASCADE, related_name="arquivos")
+    arquivo = models.FileField(upload_to="impressao/")
+
+    def __str__(self):
+        return f"Arquivo de {self.pedido.usuario.username} - Pedido {self.pedido.id}"
 from django.db import models
 from usuarios.models import Usuario
 

@@ -1,0 +1,24 @@
+{# impressoes/templates/impressoes/includes/messages.html #}
+{% if messages %}
+  <div class="row justify-content-center mb-4">
+    <div class="col-lg-6 col-md-8 col-12">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show d-flex align-items-center gap-2"
+             role="alert"
+             style="border-radius: 16px; border: none; box-shadow: var(--card-shadow); font-size: 1.08rem; padding: 1.1rem 1.5rem;">
+          {% if message.tags == 'success' %}
+            <i class="fas fa-check-circle text-success me-2" style="font-size: 1.5rem;"></i>
+          {% elif message.tags == 'error' or message.tags == 'danger' %}
+            <i class="fas fa-times-circle text-danger me-2" style="font-size: 1.5rem;"></i>
+          {% elif message.tags == 'warning' %}
+            <i class="fas fa-exclamation-triangle text-warning me-2" style="font-size: 1.5rem;"></i>
+          {% else %}
+            <i class="fas fa-info-circle text-primary me-2" style="font-size: 1.5rem;"></i>
+          {% endif %}
+          <span class="flex-grow-1">{{ message }}</span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
